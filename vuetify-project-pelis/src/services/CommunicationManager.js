@@ -11,5 +11,3 @@ export async function cercarPerText(text) {
     return dades.Search
 }
 
-obtenirDetallPelicula(imdbID)
-
