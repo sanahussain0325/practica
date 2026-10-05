@@ -1,13 +1,32 @@
 <script setup>
 import { ref } from 'vue'
-import { cercarPerText } from '../services/CommunicationManager.js'
+import { cercarPerText, detallPelicula } from '../services/CommunicationManager.js'
 
 const textCerca = ref('')
 const resultats = ref([])
+const mostrarInfo = ref(false)
+const infoPelicula = ref(null)
+const cargant = ref(false)
 
 async function cercar() {
   resultats.value = await cercarPerText(textCerca.value)
   console.log(resultats.value)
+}
+
+async function Info(imdbID) {
+
+  cargant.value = true
+  infoPelicula.value = null
+  mostrarInfo.value = true
+
+      try {
+        const detalls = await detallPelicula(imdbID)
+        infoPelicula.value = detalls
+      } catch (err) {
+        console.error(err)
+      } finally {
+        cargant.value = false
+      }
 }
 </script>
 
@@ -34,10 +53,50 @@ async function cercar() {
           <v-card-title>{{ element.Title }}</v-card-title>
 
           <v-card-text>
-            {{ element.Year }} · {{ element.Type }}
+            {{ element.Year }} 
           </v-card-text>
+
+          <v-card-text>
+            {{ element.Type }}
+          </v-card-text>
+
+          <v-card-actions>
+            <v-btn
+              @click="Info(element.imdbID)"
+              color="primary">            
+              Més info
+            </v-btn>
+          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
   </v-container>
+
+  <v-dialog
+    v-model="mostrarInfo"
+    max-width="600"
+  >
+    <v-card>
+      <v-card-text v-if="infoPelicula">
+
+        <p><b>Director:</b> {{ infoPelicula.Director }}</p>
+        <p><b>Actors:</b> {{ infoPelicula.Actors }}</p>
+        <p><b>Gènere:</b> {{ infoPelicula.Genre }}</p>
+        <p><b>Any:</b> {{ infoPelicula.Year }}</p>
+        <p><b>Durada:</b> {{ infoPelicula.Runtime }}</p>
+        <p><b>Plot:</b> {{ infoPelicula.Plot }}</p>
+        
+        <p v-if="infoPelicula.imdbRating !== 'N/A'">
+          <b>IMDb Rating:</b> {{ infoPelicula.imdbRating }}/10
+        </p>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" @click="mostrarInfo = false">
+          Tancar
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
