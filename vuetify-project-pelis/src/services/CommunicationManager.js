@@ -11,3 +11,12 @@ export async function cercarPerText(text) {
     return dades.Search
 }
 
+export async function detallPelicula(imdbID) {
+    const url = `https://www.omdbapi.com/?i=${imdbID}&apikey=9e6e78fe`
+    const resposta = await fetch(url)
+    const dades = await resposta.json()
+    if (dades.Response === "False") {
+        return null
+    }
+    return dades
+}
