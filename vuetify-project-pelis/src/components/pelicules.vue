@@ -12,6 +12,29 @@ async function cercar() {
   resultats.value = await cercarPerText(textCerca.value)
   console.log(resultats.value)
 }
+
+async function Info(imdbID) {
+
+  cargant.value = true           
+  infoPelicula.value = null
+  mostrarInfo.value = true
+
+      try {
+        const detalls = await detallPelicula(imdbID)
+        infoPelicula.value = detalls
+      } catch (err) {
+        console.error(err)
+
+      }finally{
+        cargant.value = false
+      }
+}
+
+async function borrar() {
+  textCerca.value = ''
+  resultats.value = []
+}
+
 </script>
 
 <template>
@@ -31,6 +54,8 @@ async function cercar() {
             </v-btn>
     <br><br>
     <v-btn @click="cercar">Cercar</v-btn>
+
+    
 
     
     <br>
@@ -66,4 +91,37 @@ async function cercar() {
       </v-col>
     </v-row>
   </v-container>
+
+  <v-dialog v-model="mostrarInfo" max-width="500">
+    <v-card>
+          <div v-if="cargant">
+            <v-progress-circular 
+              color="blue-lighten-3" 
+              indeterminate 
+              :size="49" 
+              :width="6">
+            </v-progress-circular>
+    </div>
+
+      <v-card-text v-if="infoPelicula">
+        
+        <p><b>Escritor : </b>{{ infoPelicula.Writer }}</p>
+
+        <p><b>Gènere : </b>{{ infoPelicula.Genre }}</p>
+
+        <p><b>Director : </b>{{ infoPelicula.Director }}</p>
+        <p><b>Actors : </b>{{ infoPelicula.Actors }}</p>
+
+        <p><b>Plot : </b>{{ infoPelicula.Plot }}</p>
+
+        <p><b>Durada : </b>{{ infoPelicula.Runtime }}</p>
+        <p><b>Any : </b>{{ infoPelicula.Year }}</p>
+      </v-card-text>
+
+    </v-card>
+
+  </v-dialog>
+
+
+
 </template>
