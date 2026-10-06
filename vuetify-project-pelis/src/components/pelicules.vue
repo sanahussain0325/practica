@@ -12,22 +12,6 @@ async function cercar() {
   resultats.value = await cercarPerText(textCerca.value)
   console.log(resultats.value)
 }
-
-async function Info(imdbID) {
-
-  cargant.value = true
-  infoPelicula.value = null
-  mostrarInfo.value = true
-
-      try {
-        const detalls = await detallPelicula(imdbID)
-        infoPelicula.value = detalls
-      } catch (err) {
-        console.error(err)
-      } finally {
-        cargant.value = false
-      }
-}
 </script>
 
 <template>
@@ -35,18 +19,29 @@ async function Info(imdbID) {
     <v-text-field
       v-model="textCerca"
       label="Què vols cercar?"
+      append-inner-icon="mdi-magnify"
+      @keydown.enter="cercar"
+      
     ></v-text-field>
 
+    <v-btn
+              @click="borrar"
+              color="primary">            
+              Netejar el cercador
+            </v-btn>
+    <br><br>
     <v-btn @click="cercar">Cercar</v-btn>
-    
 
+    
+    <br>
+    <div v-if="resultats.length==0">
+      No s'han trobat resultats
+    </div>
+
+      <div>S'han trobat {{ resultats.length }} pel·licules </div>
+      <br>
     <v-row>
-      <v-col
-        v-for="element in resultats"
-        :key="element.imdbID"
-        cols="12"
-        md="4"
-      >
+      <v-col v-for="element in resultats" :key="element.imdbID" cols="12" sm="6" md="4">
         <v-card>
           <v-img :src="element.Poster" height="350" cover></v-img>
 
@@ -71,32 +66,4 @@ async function Info(imdbID) {
       </v-col>
     </v-row>
   </v-container>
-
-  <v-dialog
-    v-model="mostrarInfo"
-    max-width="600"
-  >
-    <v-card>
-      <v-card-text v-if="infoPelicula">
-
-        <p><b>Director:</b> {{ infoPelicula.Director }}</p>
-        <p><b>Actors:</b> {{ infoPelicula.Actors }}</p>
-        <p><b>Gènere:</b> {{ infoPelicula.Genre }}</p>
-        <p><b>Any:</b> {{ infoPelicula.Year }}</p>
-        <p><b>Durada:</b> {{ infoPelicula.Runtime }}</p>
-        <p><b>Plot:</b> {{ infoPelicula.Plot }}</p>
-        
-        <p v-if="infoPelicula.imdbRating !== 'N/A'">
-          <b>IMDb Rating:</b> {{ infoPelicula.imdbRating }}/10
-        </p>
-      </v-card-text>
-
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="primary" @click="mostrarInfo = false">
-          Tancar
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
 </template>
